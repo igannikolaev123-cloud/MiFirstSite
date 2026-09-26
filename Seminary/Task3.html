@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Запись на сдачу — форма</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --card: #fffdf8;
+      --ink: #243043;
+      --accent: #246383;
+      --line: #d7cfc3;
+      --ok: #1f7a4d;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent);
+      margin: 0 0 8px;
+    }
+
+    .lead {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 24px;
+      color: #5b6573;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .column {
+      padding: 20px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(36, 48, 67, 0.06);
+    }
+
+    .column h2 {
+      margin: 0 0 16px;
+      font-size: 1.15em;
+      color: var(--accent);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .hint {
+      font-size: 0.85em;
+      color: #5b6573;
+      margin: 0;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      background: #f8f5ef;
+    }
+
+    .choices label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #fio:user-invalid,
+    #group:user-invalid,
+    #teacher:user-invalid {
+      border-color: var(--bad);
+      background: #fff4f2;
+      outline-color: var(--bad);
+    }
+
+    #fio:user-valid,
+    #group:user-valid,
+    #teacher:user-valid {
+      border-color: var(--ok);
+      background: #f1faf5;
+      outline-color: var(--ok);
+    }
+
+    button[type="submit"] {
+      grid-column: 1 / -1;
+      justify-self: center;
+      margin-top: 8px;
+      padding: 12px 36px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      filter: brightness(1.08);
+    }
+
+    @media (max-width: 800px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Запись на сдачу предмета</h1>
+  <p class="lead">Заполните данные студента и параметры сдачи. Обязательные поля отмечены звёздочкой.</p>
+
+  <form action="#" method="post">
+    <div class="column">
+      <h2>Данные студента</h2>
+
+      <div class="field">
+        <label for="fio">ФИО студента *</label>
+        <input
+          id="fio"
+          name="fio"
+          type="text"
+          required
+          autofocus
+          maxlength="256"
+          placeholder="Иванов Иван Иванович"
+          pattern="[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+"
+          title="Введите ровно три слова кириллицей, например: Иванов Иван Иванович"
+        >
+        <p class="hint">Только кириллица, ровно три слова. Не больше 256 символов.</p>
+      </div>
+
+      <div class="field">
+        <label for="course">Курс</label>
+        <input
+          id="course"
+          name="course"
+          type="number"
+          min="1"
+          max="6"
+          placeholder="3"
+          title="Номер курса от 1 до 6"
+        >
+        <p class="hint">Число от 1 до 6.</p>
+      </div>
+
+      <fieldset class="field" style="border: 0; padding: 0; margin: 0 0 16px;">
+        <legend style="font-weight: bold; margin-bottom: 6px;">Факультет</legend>
+        <div class="choices">
+          <label>
+            <input type="radio" name="faculty" value="fit" title="Факультет информационных технологий">
+            Факультет информационных технологий
+          </label>
+          <label>
+            <input type="radio" name="faculty" value="fens" title="Факультет естественных и инженерных наук">
+            Факультет естественных и инженерных наук
+          </label>
+          <label>
+            <input type="radio" name="faculty" value="ef" title="Экономический факультет">
+            Экономический факультет
+          </label>
+          <label>
+            <input type="radio" name="faculty" value="ssf" title="Социально-гуманитарный факультет">
+            Социально-гуманитарный факультет
+          </label>
+        </div>
+        <p class="hint">Выберите один факультет.</p>
+      </fieldset>
+
+      <div class="field">
+        <label for="email">Электронная почта</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          maxlength="256"
+          placeholder="anna.sokolova@example.com"
+          title="Адрес электронной почты, не больше 256 символов"
+        >
+        <p class="hint">Формат: имя@домен, максимум 256 символов.</p>
+      </div>
+
+      <fieldset class="field" style="border: 0; padding: 0; margin: 0 0 16px;">
+        <legend style="font-weight: bold; margin-bottom: 6px;">Интересы</legend>
+        <div class="choices">
+          <label>
+            <input type="checkbox" name="interests" value="tech" title="Интерес: технологии">
+            Технологии
+          </label>
+          <label>
+            <input type="checkbox" name="interests" value="psychology" title="Интерес: психология">
+            Психология
+          </label>
+          <label>
+            <input type="checkbox" name="interests" value="literature" title="Интерес: литература">
+            Литература
+          </label>
+          <label>
+            <input type="checkbox" name="interests" value="auto" title="Интерес: авто">
+            Авто
+          </label>
+          <label>
+            <input type="checkbox" name="interests" value="photo" title="Интерес: фотография">
+            Фотография
+          </label>
+        </div>
+        <p class="hint">Можно отметить несколько вариантов.</p>
+      </fieldset>
+
+      <div class="field">
+        <label for="group">Группа *</label>
+        <input
+          id="group"
+          name="group"
+          type="text"
+          required
+          maxlength="4"
+          inputmode="numeric"
+          placeholder="4123"
+          pattern="[0-9]{4}"
+          title="Номер группы — ровно 4 цифры"
+        >
+        <p class="hint">Только цифры, ровно 4 символа.</p>
+      </div>
+    </div>
+
+    <div class="column">
+      <h2>Параметры сдачи</h2>
+
+      <div class="field">
+        <label for="subject">Предмет для сдачи *</label>
+        <select id="subject" name="subject" required title="Выберите предмет из списка">
+          <option value="" disabled selected>Выберите предмет</option>
+          <option value="html">Веб-технологии</option>
+          <option value="programming">Программирование</option>
+          <option value="databases">Базы данных</option>
+          <option value="math">Математический анализ</option>
+          <option value="english">Английский язык</option>
+        </select>
+        <p class="hint">Обязательное поле. Список предметов текущего семестра.</p>
+      </div>
+
+      <div class="field">
+        <label for="teacher">Преподаватель</label>
+        <input
+          id="teacher"
+          name="teacher"
+          type="text"
+          maxlength="256"
+          placeholder="Петрова Мария Сергеевна"
+          pattern="[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+"
+          title="Введите ровно три слова кириллицей, например: Петрова Мария Сергеевна"
+        >
+        <p class="hint">Только кириллица, ровно три слова. Не больше 256 символов.</p>
+      </div>
+
+      <div class="field">
+        <label for="exam-date">Дата сдачи</label>
+        <input
+          id="exam-date"
+          name="exam-date"
+          type="date"
+          placeholder="2026-10-15"
+          title="Выберите дату сдачи"
+        >
+        <p class="hint">Календарная дата выбранной попытки.</p>
+      </div>
+
+      <fieldset class="field" style="border: 0; padding: 0; margin: 0;">
+        <legend style="font-weight: bold; margin-bottom: 6px;">Форма сдачи</legend>
+        <div class="choices">
+          <label>
+            <input type="radio" name="exam-form" value="offline" title="Очная форма сдачи">
+            Очная
+          </label>
+          <label>
+            <input type="radio" name="exam-form" value="online" title="Дистанционная форма сдачи">
+            Дистанционная
+          </label>
+        </div>
+        <p class="hint">Выберите один вариант.</p>
+      </fieldset>
+    </div>
+
+    <button type="submit">Записаться</button>
+  </form>
+</body>
+</html>
