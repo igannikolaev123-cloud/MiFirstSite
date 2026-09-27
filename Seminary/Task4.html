@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed, Relative, Absolute</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 30px 20px 50px;
+        background: #f7f2e6;
+        color: #24304b;
+        font-family: Georgia, "Times New Roman", serif;
+    }
+
+    h1 {
+        margin: 0 auto 45px;
+        text-align: center;
+        font-size: 30px;
+        color: #4b3b2f;
+    }
+
+    section {
+        max-width: 780px;
+        margin: 0 auto 55px;
+        padding: 28px;
+        border: 2px solid #7b6f63;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 7px 16px rgba(60, 45, 25, 0.14);
+    }
+
+    section h2 {
+        margin: 0 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px dashed #b18a31;
+        font-size: 20px;
+    }
+
+    section p {
+        line-height: 1.45;
+        font-size: 14px;
+        color: #53627a;
+    }
+
+    /* FIXED */
+    body > div:first-of-type {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        width: 240px;
+        padding: 12px 15px;
+        background: #8c0000;
+        color: white;
+        border-left: 5px solid #d6a400;
+        border-radius: 7px;
+        box-shadow: 0 8px 15px rgba(80, 0, 0, 0.25);
+        z-index: 100;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+    }
+
+    body > div:first-of-type strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #f3c32d;
+    }
+
+    /* Общий вид карточек */
+    section > div > div {
+        width: 175px;
+        min-height: 95px;
+        margin: 0;
+        padding: 14px;
+        border: 0;
+        border-radius: 8px;
+        box-shadow: 0 6px 12px rgba(50, 50, 50, 0.18);
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+    }
+
+    section > div > div strong {
+        font-size: 13px;
+    }
+
+    section > div > div p {
+        margin: 8px 0 0;
+        color: inherit;
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    /* Часть 1 */
+    section:nth-of-type(1) {
+        border-color: #8c1616;
+    }
+
+    /* Часть 2 */
+    section:nth-of-type(2) {
+        border-color: #1c2e69;
+        background: rgba(239, 244, 255, 0.62);
+    }
+
+    section:nth-of-type(2) > div {
+        position: relative;
+        min-height: 420px;
+        margin-top: 20px;
+        padding: 18px;
+        border: 2px dashed #b18a31;
+        border-radius: 8px;
+        background: rgba(210, 220, 236, 0.55);
+    }
+
+    section:nth-of-type(2) > div > div {
+        display: block;
+        position: relative;
+        background: #13234f;
+        color: white;
+    }
+
+    section:nth-of-type(2) > div > div:nth-child(2) {
+        background: #24376f;
+    }
+
+    section:nth-of-type(2) > div > div:nth-child(3) {
+        top: 18px;
+        left: 60px;
+        background: #a6752a;
+    }
+
+    section:nth-of-type(2) > div > div:nth-child(4) {
+        top: 18px;
+        left: 35px;
+        background: #bf8730;
+    }
+
+    /* Часть 3 */
+    section:nth-of-type(3) {
+        border-color: #2d6b49;
+        background: rgba(241, 250, 244, 0.62);
+    }
+
+    section:nth-of-type(3) > div {
+        position: relative;
+        width: 430px;
+        height: 290px;
+        margin: 20px auto 0;
+        border: 2px dashed #b8c0bb;
+        border-radius: 7px;
+        background: rgba(218, 235, 225, 0.62);
+    }
+
+    section:nth-of-type(3) > div > div {
+        position: absolute;
+        margin: 0;
+        color: white;
+    }
+
+    section:nth-of-type(3) > div > div:nth-child(1) {
+        top: 18px;
+        left: 18px;
+        background: #14532d;
+        z-index: 1;
+    }
+
+    section:nth-of-type(3) > div > div:nth-child(2) {
+        top: 52px;
+        left: 72px;
+        background: #235c3d;
+        z-index: 2;
+    }
+
+    section:nth-of-type(3) > div > div:nth-child(3) {
+        top: 88px;
+        left: 125px;
+        background: #4b8662;
+        z-index: 10;
+    }
+
+    section:nth-of-type(3) > div > div:nth-child(4) {
+        top: 123px;
+        left: 180px;
+        background: #aaa9a9;
+        z-index: 3;
+    }
+
+    /* Часть 4 */
+    section:nth-of-type(4) {
+        border-color: #4f4a45;
+        background: rgba(255, 252, 243, 0.62);
+    }
+
+    section:nth-of-type(4) > div {
+        position: relative;
+        width: 430px;
+        height: 295px;
+        margin: 20px auto 0;
+        border: 2px dashed #d4a82e;
+        border-radius: 7px;
+        background: rgba(255, 242, 205, 0.45);
+    }
+
+    section:nth-of-type(4) > div > div {
+        position: absolute;
+        margin: 0;
+        color: #3f352d;
+    }
+
+    section:nth-of-type(4) > div > div:nth-child(1) {
+        top: 15px;
+        left: 15px;
+        background: #efb82f;
+    }
+
+    section:nth-of-type(4) > div > div:nth-child(2) {
+        top: 15px;
+        right: 15px;
+        background: #f0cf76;
+    }
+
+    section:nth-of-type(4) > div > div:nth-child(3) {
+        bottom: 15px;
+        left: 15px;
+        background: #40362f;
+        color: #f2cf44;
+    }
+
+    section:nth-of-type(4) > div > div:nth-child(4) {
+        bottom: 15px;
+        right: 15px;
+        background: #5c4c40;
+        color: #f2cf44;
+    }
+
+    code {
+        font-size: 12px;
+    }
+
+    @media (max-width: 850px) {
+        section {
+            max-width: 100%;
+        }
+
+        body > div:first-of-type {
+            width: 190px;
+        }
+    }
+</style>
+
+</head>
+<body>
+
+    <!-- ============================================
+         FIXED — сообщение в углу окна
+         ============================================ -->
+    <div>
+        <strong>📌 Fixed</strong>
+        Учимся позиционировать элементы
+    </div>
+
+    <h1>⚡ Fixed, Relative, Absolute ⚡</h1>
+
+    <!-- ============================================
+         ЧАСТЬ 1. FIXED
+         ============================================ -->
+    <section>
+        <h2>🦁 Часть 1. position: fixed</h2>
+        <p>
+            Тёмно-красное сообщение <strong>«Учимся позиционировать элементы»</strong> с золотой
+            полоской закреплено в правом верхнем углу окна. Оно <strong>не двигается при
+            прокрутке</strong> — это ключевое отличие fixed от absolute.
+        </p>
+        <p>
+            Свойства: <code>position: fixed; top: 20px; right: 20px;</code>.
+            Fixed позиционируется относительно <strong>окна браузера</strong>, а не родителя.
+        </p>
+    </section>
+
+    <!-- ============================================
+         ЧАСТЬ 2. RELATIVE
+         ============================================ -->
+    <section>
+        <h2>🦅 Часть 2. position: relative</h2>
+        <p>
+            Первые две карточки (синие) — без отступов, стоят в обычном потоке.
+            Вторые две (бронзовые) — со сдвигом через top/left. Место в потоке за ними
+            сохраняется, поэтому карточка №3 не «подъезжает» к №2.
+        </p>
+
+        <div>
+            <div>
+                <strong>Карточка 1</strong>
+                <p>relative; без отступов</p>
+            </div>
+
+            <div>
+                <strong>Карточка 2</strong>
+                <p>relative; без отступов</p>
+            </div>
+
+            <div>
+                <strong>Карточка 3</strong>
+                <p>top: 20px; left: 60px;</p>
+            </div>
+
+            <div>
+                <strong>Карточка 4</strong>
+                <p>top: 10px; left: 30px;</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         ЧАСТЬ 3. ABSOLUTE — перекрытие
+         ============================================ -->
+    <section>
+        <h2>🐍 Часть 3. position: absolute — перекрытие</h2>
+        <p>
+            Все карточки вырваны из потока и позиционируются относительно зелёного блока
+            (у него position: relative). <strong>Карточка №3 — верхняя</strong>:
+            у неё z-index: 10, поэтому она перекрывает остальные.
+        </p>
+
+        <div>
+            <div>
+                <strong>Карточка 1</strong>
+                <p>z-index: 1</p>
+            </div>
+            <div>
+                <strong>Карточка 2</strong>
+                <p>z-index: 2</p>
+            </div>
+            <div>
+                <strong>Карточка 3</strong>
+                <p>z-index: 10 ← верхняя</p>
+            </div>
+            <div>
+                <strong>Карточка 4</strong>
+                <p>z-index: 3</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         ЧАСТЬ 4. ABSOLUTE — по углам
+         ============================================ -->
+    <section>
+        <h2>🦡 Часть 4. Карточки по углам</h2>
+        <p>
+            Каждая карточка прижата к своему углу. Используются пары свойств:
+            <code>top</code>/<code>left</code> для верхних, <code>bottom</code>/<code>right</code>
+            для нижних. Родитель должен иметь <code>position: relative</code>.
+        </p>
+
+        <div>
+            <div>
+                <strong>Левый верхний</strong>
+                <p>top: 15px; left: 15px;</p>
+            </div>
+            <div>
+                <strong>Правый верхний</strong>
+                <p>top: 15px; right: 15px;</p>
+            </div>
+            <div>
+                <strong>Левый нижний</strong>
+                <p>bottom: 15px; left: 15px;</p>
+            </div>
+            <div>
+                <strong>Правый нижний</strong>
+                <p>bottom: 15px; right: 15px;</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
