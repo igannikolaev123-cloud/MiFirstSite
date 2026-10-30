@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Семинар 7 — Графический редактор Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f0f0f0;
+            margin: 20px;
+        }
+
+        .toolbar {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .active {
+            background: #bdbdbd;
+        }
+
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            background: white;
+            border: 1px solid black;
+            cursor: crosshair;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Графический редактор Canvas</h2>
+
+    <!-- Панель инструментов -->
+    <div class="toolbar">
+        <div class="tool">
+            <label for="colorPicker">Цвет:</label>
+            <input type="color" id="colorPicker" value="#000000">
+        </div>
+
+        <div class="tool">
+            <label for="thickness">Толщина:</label>
+            <input type="range" id="thickness" min="1" max="30" value="3">
+            <span id="thicknessValue">3</span>
+        </div>
+
+        <div class="tool">
+            <button class="tool-btn active" data-tool="brush">Кисть</button>
+            <button class="tool-btn" data-tool="eraser">Ластик</button>
+            <button class="tool-btn" data-tool="rect">Прямоугольник</button>
+            <button class="tool-btn" data-tool="circle">Круг</button>
+        </div>
+
+        <button id="clearBtn">Очистить</button>
+        <button id="saveBtn">Сохранить</button>
+    </div>
+
+    <!-- Холст -->
+    <div class="canvas-wrapper">
+        <canvas id="canvas" width="800" height="500"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const colorPicker = document.getElementById('colorPicker');
+        const thickness = document.getElementById('thickness');
+        const thicknessValue = document.getElementById('thicknessValue');
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let startX = 0;
+        let startY = 0;
+        let snapshot;
+        let currentTool = 'brush';
+
+        // Настройки кисти
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3;
+
+        // Получение координат мыши относительно холста
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+
+            return {
+                x: (e.clientX - rect.left) * canvas.width / rect.width,
+                y: (e.clientY - rect.top) * canvas.height / rect.height
+            };
+        }
+
+        // Выбор инструмента
+        document.querySelectorAll('.tool-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                button.classList.add('active');
+                currentTool = button.dataset.tool;
+            });
+        });
+
+        // Изменение толщины кисти
+        thickness.addEventListener('input', () => {
+            thicknessValue.textContent = thickness.value;
+            ctx.lineWidth = thickness.value;
+        });
+
+        // Начало рисования
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+
+            isDrawing = true;
+            const pos = getMousePos(e);
+
+            lastX = pos.x;
+            lastY = pos.y;
+            startX = pos.x;
+            startY = pos.y;
+
+            if (currentTool === 'rect' || currentTool === 'circle') {
+                snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        // Рисование и предпросмотр фигур
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+
+            const pos = getMousePos(e);
+            ctx.lineWidth = thickness.value;
+            ctx.strokeStyle = colorPicker.value;
+
+            if (currentTool === 'brush') {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            } else if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            } else if (currentTool === 'rect' || currentTool === 'circle') {
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+
+                if (currentTool === 'rect') {
+                    ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+                } else {
+                    const cx = (startX + pos.x) / 2;
+                    const cy = (startY + pos.y) / 2;
+                    const rx = Math.abs(pos.x - startX) / 2;
+                    const ry = Math.abs(pos.y - startY) / 2;
+
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+
+            lastX = pos.x;
+            lastY = pos.y;
+        });
+
+        // Завершение рисования
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        // Очистка холста
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Сохранение изображения в PNG на белом фоне
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tempCtx.drawImage(canvas, 0, 0);
+
+            const link = document.createElement('a');
+            link.download = 'my-drawing.png';
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+
+</body>
+</html>
