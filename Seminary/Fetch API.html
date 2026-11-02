@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акции компаний — данные MOEX</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            font-family: Arial, sans-serif;
+            color: #202938;
+            background: #f3f6fa;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #687386;
+            font-size: 14px;
+        }
+
+        .refresh-button {
+            padding: 11px 16px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: #1d4ed8;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 14px rgba(25, 45, 75, 0.07);
+        }
+
+        .panel h2 {
+            margin: 0 0 6px;
+            font-size: 20px;
+        }
+
+        .panel-description {
+            margin: 0 0 18px;
+            color: #778195;
+            font-size: 13px;
+        }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 390px;
+        }
+
+        .chart-message {
+            display: none;
+            min-height: 390px;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #687386;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .company-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .company-button {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e1e7ef;
+            border-radius: 9px;
+            background: #fff;
+            color: #202938;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .company-button:hover {
+            border-color: #8eaddf;
+            background: #f8fbff;
+        }
+
+        .company-button.active {
+            border: 2px solid #2563eb;
+            padding: 13px;
+            background: #eff6ff;
+        }
+
+        .company-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+
+        .ticker {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .moex-code {
+            margin-left: 5px;
+            color: #8993a3;
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        .company-name {
+            margin-bottom: 9px;
+            color: #596579;
+            font-size: 13px;
+        }
+
+        .company-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 14px;
+            color: #364254;
+            font-size: 12px;
+        }
+
+        .company-info span {
+            white-space: nowrap;
+        }
+
+        .status {
+            margin-top: 14px;
+            color: #778195;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .status.error {
+            color: #b42318;
+        }
+
+        .footnote {
+            margin-top: 18px;
+            color: #8993a3;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 800px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-box,
+            .chart-message {
+                height: 320px;
+                min-height: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Акции российских компаний</h1>
+                <p class="subtitle">Котировки и капитализация по данным Московской биржи</p>
+            </div>
+            <button class="refresh-button" id="refreshButton">Обновить данные</button>
+        </header>
+
+        <main class="main-layout">
+            <section class="panel">
+                <h2 id="chartTitle">RTKM — Ростелеком</h2>
+                <p class="panel-description" id="chartDescription">Цена закрытия за последний месяц</p>
+                <div class="chart-box" id="chartBox">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="chart-message" id="chartMessage">Загрузка графика...</div>
+                <div class="status" id="chartStatus">Загрузка данных Московской биржи...</div>
+            </section>
+
+            <aside class="panel">
+                <h2>Выберите компанию</h2>
+                <p class="panel-description">Нажмите на компанию, чтобы посмотреть график</p>
+                <div class="company-list" id="companyList"></div>
+                <div class="status" id="dataStatus">Получение котировок...</div>
+            </aside>
+        </main>
+
+        <p class="footnote">
+            Источник данных: MOEX ISS API. Капитализация рассчитывается по формуле:
+            цена акции × количество акций в выпуске. Котировки могут отображаться с задержкой.
+            Для компаний ЛСР и ПИК используются биржевые коды LSRG и PIKK соответственно.
+        </p>
+    </div>
+
+    <script>
+        // Биржевые коды ценных бумаг (SECID).
+        // LSR и PIK — обозначения из варианта задания, на MOEX это LSRG и PIKK.
+        const companies = [
+            { secid: 'RTKM', ticker: 'RTKM', fallbackName: 'Ростелеком' },
+            { secid: 'UPRO', ticker: 'UPRO', fallbackName: 'Юнипро' },
+            { secid: 'LSRG', ticker: 'LSR', fallbackName: 'Группа ЛСР' },
+            { secid: 'PIKK', ticker: 'PIK', fallbackName: 'ПИК' },
+            { secid: 'MTLR', ticker: 'MTLR', fallbackName: 'Мечел' }
+        ];
+
+        const moexUrl = 'https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR';
+        const companyData = {};
+        let currentChart = null;
+        let selectedSecid = 'RTKM';
+
+        // Защищаем текст, полученный от API, перед вставкой в HTML.
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>\"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '\"': '&quot;',
+                "'": '&#39;'
+            }[character]));
+        }
+
+        // Преобразуем число в формат с разделителями разрядов.
+        function formatNumber(value, digits = 2) {
+            if (!Number.isFinite(value)) return 'нет данных';
+            return value.toLocaleString('ru-RU', {
+                maximumFractionDigits: digits,
+                minimumFractionDigits: 0
+            });
+        }
+
+        // Сокращённая запись капитализации, чтобы она помещалась в кнопке.
+        function formatCapitalization(value) {
+            if (!Number.isFinite(value) || value <= 0) return 'нет данных';
+
+            if (value >= 1_000_000_000_000) {
+                return formatNumber(value / 1_000_000_000_000, 2) + ' трлн ₽';
+            }
+            if (value >= 1_000_000_000) {
+                return formatNumber(value / 1_000_000_000, 2) + ' млрд ₽';
+            }
+            if (value >= 1_000_000) {
+                return formatNumber(value / 1_000_000, 2) + ' млн ₽';
+            }
+            return formatNumber(value, 0) + ' ₽';
+        }
+
+        // Получаем значение из строки MOEX по названию колонки.
+        function getCell(row, columns, columnName) {
+            const index = columns.indexOf(columnName);
+            return index === -1 ? null : row[index];
+        }
+
+        function getPositiveNumber(value) {
+            if (value === null || value === undefined || value === '') return null;
+            const number = Number(value);
+            return Number.isFinite(number) && number > 0 ? number : null;
+        }
+
+        // Получаем тикеры, названия, число акций и цены с MOEX ISS API.
+        async function loadCompanyData() {
+            const params = new URLSearchParams({
+                securities: companies.map(company => company.secid).join(','),
+                'iss.only': 'securities,marketdata',
+                'iss.meta': 'off'
+            });
+
+            const response = await fetch(`${moexUrl}/securities.json?${params}`, {
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                throw new Error('Не удалось получить список акций с MOEX. Код: ' + response.status);
+            }
+
+            const json = await response.json();
+            const securitiesBlock = json.securities;
+            const marketBlock = json.marketdata;
+
+            if (!securitiesBlock || !marketBlock) {
+                throw new Error('Биржа вернула неполный ответ. Попробуйте обновить страницу.');
+            }
+
+            // Сначала сохраняем статическую информацию: полное название (SECNAME) и количество акций.
+            const info = {};
+            securitiesBlock.data.forEach(row => {
+                const secid = getCell(row, securitiesBlock.columns, 'SECID');
+                if (!secid) return;
+
+                info[secid] = {
+                    name: getCell(row, securitiesBlock.columns, 'SECNAME')
+                        || getCell(row, securitiesBlock.columns, 'SHORTNAME'),
+                    issueSize: getPositiveNumber(getCell(row, securitiesBlock.columns, 'ISSUESIZE'))
+                };
+            });
+
+            // Затем добавляем цену и рассчитываем капитализацию.
+            marketBlock.data.forEach(row => {
+                const secid = getCell(row, marketBlock.columns, 'SECID');
+                if (!secid || !info[secid]) return;
+
+                // Если LAST отсутствует, используем MARKETPRICE, затем PREVPRICE.
+                const price = getPositiveNumber(getCell(row, marketBlock.columns, 'LAST'))
+                    || getPositiveNumber(getCell(row, marketBlock.columns, 'MARKETPRICE'))
+                    || getPositiveNumber(getCell(row, marketBlock.columns, 'PREVPRICE'));
+
+                info[secid].price = price;
+                if (price && info[secid].issueSize) {
+                    info[secid].marketCap = price * info[secid].issueSize;
+                } else {
+                    info[secid].marketCap = null;
+                }
+            });
+
+            companies.forEach(company => {
+                const item = info[company.secid] || {};
+                companyData[company.secid] = {
+                    name: item.name || company.fallbackName,
+                    issueSize: item.issueSize || null,
+                    price: item.price || null,
+                    marketCap: item.marketCap || null
+                };
+            });
+        }
+
+        // Рисуем пять кнопок с информацией о компаниях.
+        function renderCompanies() {
+            const list = document.getElementById('companyList');
+
+            list.innerHTML = companies.map(company => {
+                const data = companyData[company.secid] || {};
+                const otherCode = company.ticker !== company.secid
+                    ? `<span class="moex-code">MOEX: ${escapeHtml(company.secid)}</span>`
+                    : '';
+                const price = data.price ? formatNumber(data.price) + ' ₽' : 'нет данных';
+                const capitalization = formatCapitalization(data.marketCap);
+                const fullCapitalization = Number.isFinite(data.marketCap)
+                    ? formatNumber(data.marketCap, 0) + ' ₽'
+                    : 'нет данных';
+
+                return `
+                    <button class="company-button ${selectedSecid === company.secid ? 'active' : ''}"
+                            data-secid="${company.secid}" type="button">
+                        <div class="company-top">
+                            <span class="ticker">${escapeHtml(company.ticker)}${otherCode}</span>
+                        </div>
+                        <div class="company-name">${escapeHtml(data.name || company.fallbackName)}</div>
+                        <div class="company-info">
+                            <span>Цена: ${price}</span>
+                            <span title="${fullCapitalization}">Капитализация: ${capitalization}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            list.querySelectorAll('.company-button').forEach(button => {
+                button.addEventListener('click', () => selectCompany(button.dataset.secid));
+            });
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function showChartMessage(message) {
+            document.getElementById('chartBox').style.display = 'none';
+            const messageBox = document.getElementById('chartMessage');
+            messageBox.style.display = 'flex';
+            messageBox.textContent = message;
+        }
+
+        function hideChartMessage() {
+            document.getElementById('chartBox').style.display = 'block';
+            document.getElementById('chartMessage').style.display = 'none';
+        }
+
+        // Загружаем дневные свечи за последний месяц и строим график.
+        async function loadChart(secid) {
+            const company = companies.find(item => item.secid === secid);
+            const data = companyData[secid] || {};
+            const displayName = data.name || company.fallbackName;
+
+            document.getElementById('chartTitle').textContent = `${company.ticker} — ${displayName}`;
+            document.getElementById('chartDescription').textContent = 'Цена закрытия за последний месяц';
+            document.getElementById('chartStatus').textContent = 'Загрузка графика...';
+            document.getElementById('chartStatus').className = 'status';
+            showChartMessage('Загрузка графика...');
+
+            const till = new Date();
+            const from = new Date();
+            from.setMonth(from.getMonth() - 1);
+
+            const params = new URLSearchParams({
+                from: formatDate(from),
+                till: formatDate(till),
+                interval: '24',
+                'iss.meta': 'off'
+            });
+
+            const url = `${moexUrl}/securities/${secid}/candles.json?${params}`;
+            const response = await fetch(url, { cache: 'no-store' });
+
+            if (!response.ok) {
+                throw new Error('Не удалось получить свечи. Код: ' + response.status);
+            }
+
+            const json = await response.json();
+            const candles = json.candles;
+
+            if (!candles || !candles.data || candles.data.length === 0) {
+                if (currentChart) {
+                    currentChart.destroy();
+                    currentChart = null;
+                }
+                showChartMessage('За выбранный период нет данных о торгах для этой акции.');
+                document.getElementById('chartStatus').textContent = 'Данные о свечах отсутствуют.';
+                return;
+            }
+
+            const beginIndex = candles.columns.indexOf('begin');
+            const closeIndex = candles.columns.indexOf('close');
+
+            const points = candles.data
+                .map(row => ({
+                    date: row[beginIndex],
+                    price: Number(row[closeIndex])
+                }))
+                .filter(point => point.date && Number.isFinite(point.price));
+
+            if (points.length === 0) {
+                showChartMessage('Не получилось прочитать цены из ответа биржи.');
+                document.getElementById('chartStatus').textContent = 'Нет подходящих данных для графика.';
+                return;
+            }
+
+            const labels = points.map(point => {
+                const datePart = point.date.slice(0, 10);
+                const parts = datePart.split('-');
+                return `${parts[2]}.${parts[1]}`;
+            });
+            const prices = points.map(point => point.price);
+
+            hideChartMessage();
+
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const context = document.getElementById('priceChart').getContext('2d');
+            currentChart = new Chart(context, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Цена закрытия, ₽',
+                        data: prices,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        fill: true,
+                        tension: 0.25
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: context => 'Цена: ' + formatNumber(context.parsed.y) + ' ₽'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: value => formatNumber(value) + ' ₽'
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('chartStatus').textContent =
+                `Показано точек: ${points.length}. Период: ${formatDate(from)} — ${formatDate(till)}.`;
+        }
+
+        // Выбираем компанию и обновляем график слева.
+        async function selectCompany(secid) {
+            selectedSecid = secid;
+            renderCompanies();
+
+            try {
+                await loadChart(secid);
+            } catch (error) {
+                console.error(error);
+                showChartMessage('Не удалось загрузить график. Проверьте подключение к интернету и попробуйте ещё раз.');
+                const status = document.getElementById('chartStatus');
+                status.textContent = error.message;
+                status.className = 'status error';
+            }
+        }
+
+        // Обновляем информацию по всем пяти акциям.
+        async function init() {
+            const status = document.getElementById('dataStatus');
+            status.textContent = 'Получение котировок с MOEX...';
+            status.className = 'status';
+            document.getElementById('refreshButton').disabled = true;
+
+            try {
+                await loadCompanyData();
+                renderCompanies();
+                status.textContent = 'Данные получены: ' + new Date().toLocaleString('ru-RU');
+                await selectCompany(selectedSecid);
+            } catch (error) {
+                console.error(error);
+                renderCompanies();
+                status.textContent = 'Ошибка загрузки данных MOEX: ' + error.message;
+                status.className = 'status error';
+            } finally {
+                document.getElementById('refreshButton').disabled = false;
+            }
+        }
+
+        document.getElementById('refreshButton').addEventListener('click', init);
+        init();
+    </script>
+</body>
+</html>
