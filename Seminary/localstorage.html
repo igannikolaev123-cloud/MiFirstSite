@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои задачи</title>
+    <style>
+        :root {
+            --blue: #347cf0;
+            --blue-dark: #245fc0;
+            --text: #17365e;
+            --muted: #71819a;
+            --border: #dce5f0;
+            --surface: #ffffff;
+            --page: #f2f6fc;
+            --red: #ef4444;
+            --red-bg: #fff4f4;
+            --green: #18845a;
+            --green-bg: #effaf5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 36px 18px;
+            background: var(--page);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .app {
+            width: min(100%, 900px);
+            min-height: 650px;
+            margin: 0 auto;
+            padding: 34px 30px 26px;
+            background: var(--surface);
+            border: 1px solid #e9eef6;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(37, 67, 110, 0.08);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 25px;
+        }
+
+        .header-icon {
+            font-size: 31px;
+            line-height: 1;
+        }
+
+        h1 {
+            margin: 0;
+            color: #123d70;
+            font-size: clamp(25px, 4vw, 32px);
+            letter-spacing: -0.5px;
+        }
+
+        .task-form {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) 190px auto;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        input,
+        select,
+        button {
+            font: inherit;
+        }
+
+        .field,
+        .filter-select,
+        .status-select {
+            min-width: 0;
+            height: 49px;
+            padding: 0 14px;
+            color: #263b55;
+            background: #fff;
+            border: 1.5px solid #cbd8e8;
+            border-radius: 9px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field:focus,
+        .filter-select:focus,
+        .status-select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(52, 124, 240, 0.12);
+        }
+
+        .field::placeholder {
+            color: #8997aa;
+        }
+
+        .add-button {
+            min-height: 49px;
+            padding: 0 23px;
+            color: #fff;
+            font-weight: 700;
+            background: var(--blue);
+            border: 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .add-button:hover {
+            background: var(--blue-dark);
+        }
+
+        .add-button:active,
+        .delete-button:active {
+            transform: translateY(1px);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0 0 18px;
+            color: #526986;
+            font-size: 15px;
+        }
+
+        .filter-select {
+            width: 155px;
+            height: 40px;
+            padding: 0 11px;
+        }
+
+        .feedback {
+            display: none;
+            margin: 0 0 16px;
+            padding: 11px 13px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .feedback.visible {
+            display: block;
+        }
+
+        .feedback.error {
+            color: #a52828;
+            background: #fff1f1;
+            border-color: #ffcaca;
+        }
+
+        .feedback.success {
+            color: #176b4b;
+            background: #effaf5;
+            border-color: #bcebd4;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .task-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 12px;
+            min-height: 77px;
+            padding: 13px 17px;
+            background: #f8fafc;
+            border: 1px solid #dfe7f1;
+            border-radius: 10px;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .task-item.overdue {
+            background: var(--red-bg);
+            border: 1.5px solid #ff6464;
+        }
+
+        .task-item.completed .task-title {
+            color: #718096;
+            text-decoration: line-through;
+        }
+
+        .task-info {
+            min-width: 0;
+        }
+
+        .task-title {
+            overflow-wrap: anywhere;
+            margin-bottom: 5px;
+            color: #17365e;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .task-date {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .task-item.overdue .task-date {
+            color: #e33131;
+            font-weight: 600;
+        }
+
+        .status-select {
+            width: 145px;
+            height: 38px;
+            padding: 0 9px;
+            border-radius: 7px;
+            background-color: #fff;
+        }
+
+        .delete-button {
+            min-height: 38px;
+            padding: 0 15px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            background: var(--red);
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .delete-button:hover {
+            background: #d92f2f;
+        }
+
+        .empty-state {
+            padding: 35px 15px;
+            color: #8492a7;
+            text-align: center;
+            background: #fafcff;
+            border: 1px dashed #d7e1ee;
+            border-radius: 10px;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 20px;
+            color: #71819a;
+            font-size: 14px;
+        }
+
+        .summary strong {
+            color: #526986;
+            font-weight: 600;
+        }
+
+        button:focus-visible {
+            outline: 3px solid rgba(52, 124, 240, 0.3);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 16px 10px;
+            }
+
+            .app {
+                min-height: calc(100vh - 32px);
+                padding: 23px 17px;
+                border-radius: 14px;
+            }
+
+            .task-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .title-input {
+                grid-column: 1 / -1;
+            }
+
+            .add-button {
+                padding: 0 14px;
+            }
+
+            .task-item {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 10px;
+                padding: 13px;
+            }
+
+            .task-info {
+                grid-column: 1 / -1;
+            }
+
+            .status-select {
+                width: 100%;
+            }
+
+            .delete-button {
+                min-width: 91px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .task-form {
+                grid-template-columns: 1fr;
+            }
+
+            .title-input {
+                grid-column: auto;
+            }
+
+            .filter-select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="header">
+            <span class="header-icon" aria-hidden="true">📋</span>
+            <h1>Мои задачи</h1>
+        </header>
+
+        <form class="task-form" id="taskForm" novalidate>
+            <input
+                class="field title-input"
+                id="taskTitle"
+                type="text"
+                placeholder="Название задачи"
+                minlength="1"
+                maxlength="100"
+                autocomplete="off"
+                aria-label="Название задачи"
+                required
+            >
+            <input
+                class="field"
+                id="taskDate"
+                type="date"
+                aria-label="Дата выполнения"
+                required
+            >
+            <button class="add-button" type="submit">Добавить</button>
+        </form>
+
+        <div class="toolbar">
+            <label for="statusFilter">Фильтр по статусу:</label>
+            <select class="filter-select" id="statusFilter">
+                <option value="all">Все</option>
+                <option value="todo">В работе</option>
+                <option value="done">Выполнено</option>
+                <option value="postponed">Отложено</option>
+            </select>
+        </div>
+
+        <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+        <section class="task-list" id="taskList" aria-label="Список задач"></section>
+        <footer class="summary" id="summary" aria-live="polite"></footer>
+    </main>
+
+    <script>
+        // Возможные статусы задачи и их подписи на странице.
+        const STATUS_LABELS = {
+            todo: 'В работе',
+            done: 'Выполнено',
+            postponed: 'Отложено'
+        };
+
+        // Все задачи хранятся в массиве tasks и в localStorage под ключом "tasks".
+        let tasks = [];
+        let currentFilter = 'all';
+
+        const taskForm = document.getElementById('taskForm');
+        const taskTitleInput = document.getElementById('taskTitle');
+        const taskDateInput = document.getElementById('taskDate');
+        const statusFilter = document.getElementById('statusFilter');
+        const taskList = document.getElementById('taskList');
+        const summary = document.getElementById('summary');
+        const feedback = document.getElementById('feedback');
+
+        // Возвращает сегодняшнюю дату в формате YYYY-MM-DD (по местному времени).
+        function getTodayString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Преобразует YYYY-MM-DD в ДД.ММ.ГГГГ без сдвига даты из-за часового пояса.
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}.${month}.${year}`;
+        }
+
+        function showFeedback(message, type) {
+            feedback.textContent = message;
+            feedback.className = `feedback visible ${type}`;
+        }
+
+        function hideFeedback() {
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+        }
+
+        // Загружает массив задач из localStorage при запуске приложения.
+        function loadTasks() {
+            try {
+                const savedTasks = localStorage.getItem('tasks');
+
+                if (savedTasks === null) {
+                    tasks = [];
+                    return;
+                }
+
+                const parsedTasks = JSON.parse(savedTasks);
+                if (!Array.isArray(parsedTasks)) {
+                    throw new Error('В localStorage ожидался JSON-массив.');
+                }
+
+                const validStatuses = Object.keys(STATUS_LABELS);
+                const validTasks = parsedTasks.filter(task =>
+                    task &&
+                    (typeof task.id === 'string' || typeof task.id === 'number') &&
+                    typeof task.title === 'string' &&
+                    task.title.length >= 1 &&
+                    task.title.length <= 100 &&
+                    typeof task.date === 'string' &&
+                    /^\d{4}-\d{2}-\d{2}$/.test(task.date) &&
+                    validStatuses.includes(task.status)
+                );
+
+                tasks = validTasks;
+
+                if (validTasks.length !== parsedTasks.length) {
+                    showFeedback('Некоторые некорректные записи из сохранённых данных не были загружены.', 'error');
+                }
+            } catch (error) {
+                tasks = [];
+                showFeedback('Не удалось прочитать сохранённые задачи. Проверьте данные localStorage.', 'error');
+                console.error('Ошибка загрузки задач:', error);
+            }
+        }
+
+        // Сохраняет текущий массив задач в localStorage в формате JSON.
+        function saveTasks() {
+            try {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                return true;
+            } catch (error) {
+                showFeedback('Не удалось сохранить задачи в localStorage. Возможно, хранилище браузера недоступно.', 'error');
+                console.error('Ошибка сохранения задач:', error);
+                return false;
+            }
+        }
+
+        // Создаёт уникальный числовой id на основе текущего времени.
+        function createTaskId() {
+            const usedIds = new Set(tasks.map(task => String(task.id)));
+            let id = Date.now();
+
+            while (usedIds.has(String(id))) {
+                id += 1;
+            }
+
+            return id;
+        }
+
+        function createTaskElement(task) {
+            const article = document.createElement('article');
+            article.className = 'task-item';
+
+            const isOverdue = task.date < getTodayString() && task.status !== 'done';
+            if (isOverdue) article.classList.add('overdue');
+            if (task.status === 'done') article.classList.add('completed');
+
+            const info = document.createElement('div');
+            info.className = 'task-info';
+
+            const title = document.createElement('div');
+            title.className = 'task-title';
+            title.textContent = task.title;
+
+            const date = document.createElement('div');
+            date.className = 'task-date';
+            date.textContent = `🗓️ ${formatDate(task.date)}`;
+
+            info.append(title, date);
+
+            const statusSelect = document.createElement('select');
+            statusSelect.className = 'status-select';
+            statusSelect.setAttribute('aria-label', `Статус задачи: ${task.title}`);
+
+            Object.entries(STATUS_LABELS).forEach(([value, label]) => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = label;
+                statusSelect.append(option);
+            });
+
+            statusSelect.value = task.status;
+            statusSelect.addEventListener('change', () => {
+                const taskToUpdate = tasks.find(item => item.id === task.id);
+                if (!taskToUpdate) return;
+
+                taskToUpdate.status = statusSelect.value;
+                saveTasks();
+                renderTasks();
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.type = 'button';
+            deleteButton.textContent = 'Удалить';
+            deleteButton.addEventListener('click', () => {
+                const confirmed = confirm(`Удалить задачу «${task.title}»?`);
+                if (!confirmed) return;
+
+                tasks = tasks.filter(item => item.id !== task.id);
+                saveTasks();
+                renderTasks();
+            });
+
+            article.append(info, statusSelect, deleteButton);
+            return article;
+        }
+
+        // Перерисовывает список: сначала фильтрация, затем сортировка по дате.
+        function renderTasks() {
+            taskList.replaceChildren();
+
+            let visibleTasks = currentFilter === 'all'
+                ? [...tasks]
+                : tasks.filter(task => task.status === currentFilter);
+
+            visibleTasks.sort((a, b) => a.date.localeCompare(b.date));
+
+            if (visibleTasks.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.textContent = tasks.length === 0
+                    ? 'Пока нет задач. Добавьте первую задачу выше.'
+                    : 'Задач с таким статусом пока нет.';
+                taskList.append(emptyState);
+            } else {
+                visibleTasks.forEach(task => {
+                    taskList.append(createTaskElement(task));
+                });
+            }
+
+            renderSummary();
+        }
+
+        // Счётчики показывают данные по всем задачам, независимо от фильтра.
+        function renderSummary() {
+            const completedCount = tasks.filter(task => task.status === 'done').length;
+            const overdueCount = tasks.filter(task =>
+                task.date < getTodayString() && task.status !== 'done'
+            ).length;
+
+            summary.replaceChildren();
+            const parts = [
+                `Всего: ${tasks.length}`,
+                `Выполнено: ${completedCount}`,
+                `Просрочено: ${overdueCount}`
+            ];
+
+            parts.forEach((part, index) => {
+                if (index > 0) {
+                    const separator = document.createElement('span');
+                    separator.textContent = '|';
+                    summary.append(separator);
+                }
+                const item = document.createElement('strong');
+                item.textContent = part;
+                summary.append(item);
+            });
+        }
+
+        // Добавление новой задачи с проверкой названия и даты.
+        taskForm.addEventListener('submit', event => {
+            event.preventDefault();
+            hideFeedback();
+
+            const title = taskTitleInput.value.trim();
+            const date = taskDateInput.value;
+
+            if (title.length === 0) {
+                showFeedback('Введите название задачи.', 'error');
+                taskTitleInput.focus();
+                return;
+            }
+
+            if (title.length > 100) {
+                showFeedback('Название задачи не должно превышать 100 символов.', 'error');
+                taskTitleInput.focus();
+                return;
+            }
+
+            if (!date || !taskDateInput.checkValidity()) {
+                showFeedback('Выберите корректную дату выполнения задачи.', 'error');
+                taskDateInput.focus();
+                return;
+            }
+
+            const newTask = {
+                id: createTaskId(),
+                title: title,
+                date: date,
+                status: 'todo'
+            };
+
+            tasks.push(newTask);
+            const saved = saveTasks();
+            renderTasks();
+            taskForm.reset();
+            taskTitleInput.focus();
+
+            if (saved) {
+                showFeedback('Задача добавлена.', 'success');
+            }
+        });
+
+        // При смене фильтра обновляем отображаемый список.
+        statusFilter.addEventListener('change', () => {
+            currentFilter = statusFilter.value;
+            renderTasks();
+        });
+
+        // Запуск приложения.
+        loadTasks();
+        renderTasks();
+    </script>
+</body>
+</html>
