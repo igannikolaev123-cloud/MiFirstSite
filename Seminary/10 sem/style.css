@@ -1,0 +1,269 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 34px 18px;
+    background: #f3f6fa;
+    color: #17324d;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.page {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.finance-card {
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(25, 54, 82, 0.09);
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.title-icon {
+    font-size: 31px;
+}
+
+h1 {
+    margin: 0;
+    color: #102f4d;
+    font-size: 27px;
+}
+
+.subtitle {
+    margin: 5px 0 0;
+    color: #718096;
+    font-size: 13px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 13px;
+    margin-bottom: 18px;
+    padding: 17px;
+    border-radius: 12px;
+    background: #f5f8fb;
+}
+
+.filter-field {
+    display: flex;
+    min-width: 125px;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-field label {
+    color: #38536e;
+    font-size: 12px;
+}
+
+.filter-field select,
+.filter-field input {
+    min-height: 38px;
+    padding: 7px 10px;
+    border: 1px solid #cbd6e2;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #203b56;
+    font: inherit;
+    font-size: 13px;
+}
+
+.filter-field select:focus,
+.filter-field input:focus {
+    outline: 2px solid #9fc3e5;
+    outline-offset: 1px;
+}
+
+.reset-button {
+    min-height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 6px;
+    background: #e84b4b;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.reset-button:hover {
+    background: #d83d3d;
+}
+
+.status-message {
+    min-height: 18px;
+    margin: 0 0 10px;
+    color: #718096;
+    font-size: 12px;
+}
+
+.status-message.error {
+    padding: 10px 12px;
+    border-radius: 7px;
+    background: #fff0f0;
+    color: #b42318;
+    line-height: 1.5;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e5ebf1;
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: #214f70;
+    color: #ffffff;
+}
+
+th {
+    padding: 0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.sort-button {
+    width: 100%;
+    padding: 13px 12px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.sort-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.amount-column {
+    min-width: 135px;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e8edf2;
+    color: #314b65;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+tbody tr:hover {
+    background: #f7fafd;
+}
+
+.income-text {
+    color: #16864a;
+}
+
+.expense-text {
+    color: #e04444;
+}
+
+.amount-income {
+    color: #16864a;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.amount-expense {
+    color: #e04444;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.empty-row {
+    padding: 28px 12px;
+    color: #718096;
+    text-align: center;
+}
+
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 18px;
+    padding: 17px 18px;
+    border-radius: 10px;
+    background: #eef3f8;
+    font-size: 13px;
+}
+
+.summary-item {
+    color: #27435e;
+    white-space: nowrap;
+}
+
+.summary-item strong {
+    font-weight: 700;
+}
+
+.page-footer {
+    padding: 13px 5px 0;
+    color: #8291a2;
+    font-size: 11px;
+    text-align: right;
+}
+
+@media (max-width: 650px) {
+    body {
+        padding: 14px 9px;
+    }
+
+    .finance-card {
+        padding: 17px 12px;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 21px;
+    }
+
+    .filters {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .filter-field {
+        flex: 1 1 135px;
+    }
+
+    .reset-button {
+        flex: 1 1 100%;
+    }
+
+    .summary {
+        gap: 12px 18px;
+        padding: 14px;
+    }
+
+    td {
+        padding: 10px 9px;
+        white-space: nowrap;
+    }
+}

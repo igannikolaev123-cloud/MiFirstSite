@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои финансы — Вариант 1</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="page">
+        <section class="finance-card">
+            <header class="page-header">
+                <div class="title-icon" aria-hidden="true">💰</div>
+                <div>
+                    <h1>Мои финансы — Вариант 1</h1>
+                    <p class="subtitle">Учёт доходов и расходов</p>
+                </div>
+            </header>
+
+            <section class="filters" aria-label="Фильтры операций">
+                <div class="filter-field">
+                    <label for="typeFilter">Тип:</label>
+                    <select id="typeFilter">
+                        <option value="all">Все</option>
+                        <option value="income">Доход</option>
+                        <option value="expense">Расход</option>
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label for="categoryFilter">Категория:</label>
+                    <select id="categoryFilter">
+                        <option value="all">Все</option>
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label for="dateFrom">Дата от:</label>
+                    <input id="dateFrom" type="date">
+                </div>
+
+                <div class="filter-field">
+                    <label for="dateTo">Дата до:</label>
+                    <input id="dateTo" type="date">
+                </div>
+
+                <button id="resetButton" class="reset-button" type="button">Сбросить</button>
+            </section>
+
+            <div id="statusMessage" class="status-message" role="status" aria-live="polite">
+                Загружаем данные...
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><button class="sort-button" type="button" data-sort="date">Дата</button></th>
+                            <th><button class="sort-button" type="button" data-sort="type">Тип</button></th>
+                            <th><button class="sort-button" type="button" data-sort="category">Категория</button></th>
+                            <th><button class="sort-button" type="button" data-sort="description">Описание</button></th>
+                            <th class="amount-column"><button class="sort-button" type="button" data-sort="amount">Сумма</button></th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                        <tr>
+                            <td class="empty-row" colspan="5">Загружаем операции...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="summary" aria-label="Итоги по выбранным операциям">
+                <div class="summary-item">Доходы: <strong id="incomeTotal" class="income-text">0 ₽</strong></div>
+                <div class="summary-item">Расходы: <strong id="expenseTotal" class="expense-text">0 ₽</strong></div>
+                <div class="summary-item">Баланс: <strong id="balanceTotal">0 ₽</strong></div>
+                <div class="summary-item">Операций: <strong id="operationsTotal">0</strong></div>
+            </section>
+        </section>
+        <footer class="page-footer">Данные загружаются из файла data.json</footer>
+    </main>
+</body>
+</html>
